@@ -20,8 +20,8 @@ public class Client {
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                 ) {
             // test for DataOutputStream
-            String msg = "this is a test msg";
-            byte[] message = msg.getBytes();
+            String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction><create ref=\"c1\">" + "<account>1234</account>" + "<balance>5000</balance>" + "</create></transaction>";
+            byte[] message = xmlRequest.getBytes();
             dos.writeInt(message.length);
             dos.write(message);
             int len = dis.readInt();

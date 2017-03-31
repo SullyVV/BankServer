@@ -1,10 +1,12 @@
 package ece590.bankserver;
 
+import common.*;
+import org.w3c.dom.Document;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-
 public class Bank {
+    private static Document xmlDocument;
 
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
@@ -26,6 +28,8 @@ public class Bank {
                 dis.readFully(inMsg, 0, len);
                 String txt = new String(inMsg);
                 System.out.println("The input msg is: " + txt);
+                XmlUtil xmlHandler = new XmlUtil();
+                xmlDocument = xmlHandler.parseXml(txt);
             }
             String outMsg = "This is the msg for client";
             byte[] bytes = outMsg.getBytes();
