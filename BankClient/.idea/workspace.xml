@@ -17,7 +17,7 @@
         <entry file="file://$PROJECT_DIR$/src/ece590/bankclient/Client.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="330">
-              <caret line="22" column="160" lean-forward="false" selection-start-line="22" selection-start-column="160" selection-end-line="22" selection-end-column="160" />
+              <caret line="22" column="253" lean-forward="false" selection-start-line="22" selection-start-column="253" selection-end-line="22" selection-end-column="253" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -605,15 +605,15 @@
       <updated>1490757832922</updated>
       <workItem from="1490757836389" duration="47000" />
       <workItem from="1490822370976" duration="3163000" />
-      <workItem from="1490828001524" duration="2816000" />
+      <workItem from="1490828001524" duration="7085000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="6026000" />
+    <option name="totallyTimeSpent" value="10295000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1920" y="0" width="1920" height="1080" extended-state="6" />
+    <frame x="-1920" y="0" width="1920" height="1080" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
@@ -685,7 +685,7 @@
     <entry file="file://$PROJECT_DIR$/src/ece590/bankclient/Client.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
-          <caret line="22" column="160" lean-forward="false" selection-start-line="22" selection-start-column="160" selection-end-line="22" selection-end-column="160" />
+          <caret line="22" column="253" lean-forward="false" selection-start-line="22" selection-start-column="253" selection-end-line="22" selection-end-column="253" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

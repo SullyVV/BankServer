@@ -20,7 +20,7 @@ public class Client {
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
                 ) {
             // test for DataOutputStream
-            String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction><create ref=\"c1\">" + "<account>1234</account>" + "<balance>5000</balance>" + "</create></transaction>";
+            String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction><create ref=\"c1\">" + "<account>1234</account>" + "<balance>5000</balance>" + "</create>" + "<transfer ref=\"3\"><from>1234</from><to>5678</to><amount>345.67</amount><tag>saving</tag></transfer>" + "</transaction>";
             byte[] message = xmlRequest.getBytes();
             dos.writeInt(message.length);
             dos.write(message);
