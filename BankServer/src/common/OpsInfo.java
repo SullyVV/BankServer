@@ -1,20 +1,16 @@
 package common;
+
+import java.util.ArrayList;
+
 public class OpsInfo {
     private String ref;
-    /*
-     * opsType ------- operation
-     *    1:              create
-     *    2:              transfer
-     *    3:              balance
-     *    4:              query
-     */
     private String opsType;
     private double amt;
     private double bal;
     private int actNum;
     private int fromActNum;
     private int toActNum;
-    private String tag;
+    private ArrayList<String> tagArray;
     private String result;
     public OpsInfo() {
         this.ref = "";
@@ -23,7 +19,7 @@ public class OpsInfo {
         this.actNum = 0;
         this.fromActNum = 0;
         this.toActNum = 0;
-        this.tag = "";
+        this.tagArray = new ArrayList<>();
         this.result = "";
     }
 
@@ -91,11 +87,19 @@ public class OpsInfo {
         return result;
     }
 
-    public void setTag(String tag) {
-        this.tag = tag;
+    public void addTag(String tag) {
+        tagArray.add(tag);
+    }
+    public ArrayList<String>getTagArray() {
+        return this.tagArray;
     }
 
-    public String getTag() {
-        return tag;
+    public boolean searchTag(String target) {
+        for(String tag : tagArray) {
+            if (tag.equals(target)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

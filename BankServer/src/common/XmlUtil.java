@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by JohnDong on 2017/3/31.
@@ -39,7 +40,7 @@ public class XmlUtil {
         }
         return document;
     }
-    public void initOpsArray(Document xmlDocument, ArrayList<OpsInfo> opsArray) {
+    public void initOpsArray(Document xmlDocument, ArrayList<OpsInfo> opsArray, CopyOnWriteArrayList<TransInfo> transArray) {
         NodeList nodeList = xmlDocument.getDocumentElement().getChildNodes();
         // traverse through each operation
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -50,29 +51,53 @@ public class XmlUtil {
             currOp.setOpsType(nodeList.item(i).getNodeName());
             // traverse through detail of each operation
             NodeList subNodeList = nodeList.item(i).getChildNodes();
-            // traverse through detail of this op
-            for (int j = 0; j < subNodeList.getLength(); j++) {
-                Node currNode = subNodeList.item(j);
-                if (currNode.getNodeName().equals("account")) {
-                    currOp.setActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                }
-                if (currNode.getNodeName().equals("amount")) {
-                    currOp.setAmt(Double.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                }
-                if (currNode.getNodeName().equals("balance")) {
-                    currOp.setBal(Double.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                }
-                if (currNode.getNodeName().equals("to")) {
-                    currOp.setToActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                }
-                if (currNode.getNodeName().equals("from")) {
-                    currOp.setFromActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                }
-                if (currNode.getNodeName().equals("tag")) {
-                    currOp.setTag(currNode.getChildNodes().item(0).getNodeValue());
+            // handle nodes in query and other operations separately
+            if (nodeList.item(i).getNodeName().equals("query")) {
+                queryHandler(nodeList.item(i), currOp);             // for query
+            } else {
+                // for create, transfer, balance.......
+                for (int j = 0; j < subNodeList.getLength(); j++) {
+                    Node currNode = subNodeList.item(j);
+                    if (currNode.getNodeName().equals("account")) {
+                        currOp.setActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
+                    }
+                    if (currNode.getNodeName().equals("amount")) {
+                        currOp.setAmt(Double.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
+                    }
+                    if (currNode.getNodeName().equals("balance")) {
+                        currOp.setBal(Double.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
+                    }
+                    if (currNode.getNodeName().equals("to")) {
+                        currOp.setToActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
+                    }
+                    if (currNode.getNodeName().equals("from")) {
+                        currOp.setFromActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
+                    }
+                    if (currNode.getNodeName().equals("tag")) {
+                        currOp.addTag(currNode.getChildNodes().item(0).getNodeValue());
+                    }
                 }
             }
+            if (currOp.getOpsType().equals("transfer")) {
+                transArray.add(initTrans(currOp));
+            }
             opsArray.add(currOp);
+
         }
+    }
+
+    private TransInfo initTrans(OpsInfo currOp) {
+        TransInfo currTrans = new TransInfo();
+        currTrans.setToActNum(currOp.getToActNum());
+        currTrans.setFromActNum(currOp.getFromActNum());
+        currTrans.setAmt(currOp.getAmt());
+        for (String tag : currOp.getTagArray()) {
+            currTrans.addTag(tag);
+        }
+        return currTrans;
+    }
+
+    private void queryHandler(Node currNode, OpsInfo currOp) {
+
     }
 }

@@ -9,11 +9,18 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Bank {
     private static Document xmlDocument;
     private static ConcurrentHashMap<Integer, Integer> actMap = new ConcurrentHashMap<>();   // use a synchronized hashmap for multi-thread convinience
-    private static ArrayList<OpsInfo> opsArray = new ArrayList<>();    // have to consider use another data structure which supports concurrent operation
+    private static CopyOnWriteArrayList<TransInfo> transArray = new CopyOnWriteArrayList<>();
+    /*
+    no need to consider concurrency for operation array, because in multithread, each thread is responsible for one request
+     */
+    private static ArrayList<OpsInfo> opsArray = new ArrayList<>();
+
+
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.err.println("Usage: java Bank <port number>");
@@ -43,7 +50,7 @@ public class Bank {
                 } else {
                     // proces xml object
                     outMsg = "This is the response";
-                    xmlHandler.initOpsArray(xmlDocument, opsArray);
+                    xmlHandler.initOpsArray(xmlDocument, opsArray, transArray);
                     for (OpsInfo currOp : opsArray) {
                         System.out.println();
                         System.out.println("One Operation");
@@ -53,7 +60,6 @@ public class Bank {
                         System.out.println("account number is: " + currOp.getActNum());
                         System.out.println("from account number is: " + currOp.getFromActNum());
                         System.out.println("to account number is: " + currOp.getToActNum());
-                        System.out.println("tag is: " + currOp.getTag());
                         System.out.println();
                     }
                 }
@@ -68,6 +74,6 @@ public class Bank {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return;
     }
 }
+

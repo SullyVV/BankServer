@@ -21,6 +21,14 @@ public class Client {
                 ) {
             // test for DataOutputStream
             String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction><create ref=\"c1\">" + "<account>1234</account>" + "<balance>5000</balance>" + "</create>" + "<transfer ref=\"3\"><from>1234</from><to>5678</to><amount>345.67</amount><tag>saving</tag></transfer>" + "</transaction>";
+            /*String xmlRequest = "<query ref=\"4\">" +
+                    "<or>" +
+                    "<equals from=\"1234\"/>" +
+                    "<equals to=\"5678\"/>" +
+                    "</or>" +
+                    "<greater amount=\"100\"/>" +
+                    "</query>";
+            */
             byte[] message = xmlRequest.getBytes();
             dos.writeInt(message.length);
             dos.write(message);
