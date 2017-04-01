@@ -11,6 +11,7 @@ public class OpsInfo {
     private int fromActNum;
     private int toActNum;
     private ArrayList<String> tagArray;
+    private QueryInfo queryInfo;
     private String result;
     public OpsInfo() {
         this.ref = "";
@@ -20,6 +21,7 @@ public class OpsInfo {
         this.fromActNum = 0;
         this.toActNum = 0;
         this.tagArray = new ArrayList<>();
+        this.queryInfo = new QueryInfo();
         this.result = "";
     }
 
@@ -92,6 +94,10 @@ public class OpsInfo {
     }
     public ArrayList<String>getTagArray() {
         return this.tagArray;
+    }
+
+    public QueryInfo getQueryInfo() {
+        return queryInfo;
     }
 
     public boolean searchTag(String target) {

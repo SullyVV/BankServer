@@ -35,13 +35,12 @@ public class Bank {
                     DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
         ) {
             int len = dis.readInt();
-            System.out.println("Size of the input msg is: " + len);
+            //System.out.println("Size of the input msg is: " + len);
             String outMsg;
             if (len > 0) {
                 byte[] inMsg = new byte[len];
                 dis.readFully(inMsg, 0, len);
                 String txt = new String(inMsg);
-                System.out.println("The input msg is: " + txt);
                 XmlUtil xmlHandler = new XmlUtil();
                 xmlDocument = xmlHandler.parseXml(txt);
                 if (xmlDocument == null) {
@@ -51,17 +50,18 @@ public class Bank {
                     // proces xml object
                     outMsg = "This is the response";
                     xmlHandler.initOpsArray(xmlDocument, opsArray, transArray);
-                    for (OpsInfo currOp : opsArray) {
-                        System.out.println();
-                        System.out.println("One Operation");
-                        System.out.println("opsType is: " + currOp.getOpsType());
-                        System.out.println("amount is: " + currOp.getAmt());
-                        System.out.println("balance is: " + currOp.getBal());
-                        System.out.println("account number is: " + currOp.getActNum());
-                        System.out.println("from account number is: " + currOp.getFromActNum());
-                        System.out.println("to account number is: " + currOp.getToActNum());
-                        System.out.println();
-                    }
+                    System.out.print("check");
+//                    for (OpsInfo currOp : opsArray) {
+//                        System.out.println();
+//                        System.out.println("One Operation");
+//                        System.out.println("opsType is: " + currOp.getOpsType());
+//                        System.out.println("amount is: " + currOp.getAmt());
+//                        System.out.println("balance is: " + currOp.getBal());
+//                        System.out.println("account number is: " + currOp.getActNum());
+//                        System.out.println("from account number is: " + currOp.getFromActNum());
+//                        System.out.println("to account number is: " + currOp.getToActNum());
+//                        System.out.println();
+//                    }
                 }
             } else {
                 // return error msg
