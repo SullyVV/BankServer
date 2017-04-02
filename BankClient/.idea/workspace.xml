@@ -16,8 +16,8 @@
       <file leaf-file-name="Client.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/ece590/bankclient/Client.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="23" column="106" lean-forward="false" selection-start-line="23" selection-start-column="106" selection-end-line="23" selection-end-column="106" />
+            <state relative-caret-position="583">
+              <caret line="80" column="0" lean-forward="true" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -26,6 +26,11 @@
         </entry>
       </file>
     </leaf>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>\n</find>
+    </findStrings>
   </component>
   <component name="GradleLocalSettings">
     <option name="externalProjectsViewState">
@@ -605,12 +610,12 @@
       <updated>1490757832922</updated>
       <workItem from="1490757836389" duration="47000" />
       <workItem from="1490822370976" duration="3163000" />
-      <workItem from="1490828001524" duration="18415000" />
+      <workItem from="1490828001524" duration="23162000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="21625000" />
+    <option name="totallyTimeSpent" value="26372000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1920" y="0" width="1920" height="1080" extended-state="0" />
@@ -684,8 +689,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/ece590/bankclient/Client.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="106" lean-forward="false" selection-start-line="23" selection-start-column="106" selection-end-line="23" selection-end-column="106" />
+        <state relative-caret-position="583">
+          <caret line="80" column="0" lean-forward="true" selection-start-line="80" selection-start-column="0" selection-end-line="80" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

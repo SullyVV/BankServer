@@ -163,47 +163,89 @@ public class XmlUtil {
     }
 
     private void processQuery(QueryOps op, CopyOnWriteArrayList<TransferOps> transArray) {
-        ArrayList<TransferOps> orResArray = new ArrayList<>();
-        ArrayList<TransferOps> notResArray = new ArrayList<>();
-        ArrayList<TransferOps> andResArray = new ArrayList<>();
-        // get orResArray first from orArray
-        for (TransferOps currTrans: transArray) {
-            for (TransferReq currReq: op.getQueryInfo().getOrArray()) {
-                if (checkReq(currReq, currTrans)) {
-                    orResArray.add(currTrans);
-                }
-            }
-        }
-        // get notResArray second from notArray
-        for (TransferOps currTrans: orResArray) {
+        ArrayList<TransferOps> resArray = new ArrayList<>();
+        for (TransferOps currTrans : transArray) {
             boolean flag = false;
-            for (TransferReq currReq: op.getQueryInfo().getNotArray()) {
+            // check reqs in orArray ---> requrie meet any of them
+            for (TransferReq currReq: op.getQueryInfo().getOrArray()) {
                 if (checkReq(currReq, currTrans)) {
                     flag = true;
                 }
             }
-            if (!flag) {
-                notResArray.add(currTrans);
+            // check reqs in notArray ---> require meet none of them
+            for (TransferReq currReq: op.getQueryInfo().getNotArray()) {
+                if (checkReq(currReq, currTrans)) {
+                    flag = false;
+                }
             }
-        }
-        // get finalResArray from andArray
-        for (TransferOps currTrans: notResArray) {
-            boolean flag = true;
+            // check reqs in andArray ---> require meet all of them
             for (TransferReq currReq: op.getQueryInfo().getAndArray()) {
                 if (!checkReq(currReq, currTrans)) {
                     flag = false;
                 }
             }
             if (flag) {
-                andResArray.add(currTrans);
+                resArray.add(currTrans);
             }
         }
-        op.setResArray(andResArray);
+        op.setResArray(new ArrayList<>(resArray));
     }
 
     private boolean checkReq(TransferReq currReq, TransferOps currTrans) {
         // check if a transfer meets current requirement
-        return true;
+        boolean flag = false;
+        switch (currReq.queryType) {
+            case "to":
+                flag = checkHelper(currTrans.getToActNum(), Long.valueOf(currReq.value), currReq);
+                break;
+            case "from":
+                flag = checkHelper(currTrans.getFromActNum(), Long.valueOf(currReq.value), currReq);
+                break;
+            case "amount":
+                flag = checkHelper(currTrans.getAmt(), Double.valueOf(currReq.value), currReq);
+                break;
+            case "tag":
+                for (String currTag:currTrans.getTagArray()) {
+                    if (currTag.equals(currReq.value)) {
+                        flag = true;
+                    }
+                }
+                break;
+            default:
+                System.out.print("This line should be non-reachable");
+        }
+        return flag;
+    }
+
+    private boolean checkHelper(Long trans, Long req, TransferReq currReq) {
+        boolean flag = false;
+        switch (currReq.req) {
+            case "equals":
+                flag = (trans.longValue() == req.longValue());
+                break;
+            case "greater":
+                flag = (trans.longValue() > req.longValue());
+                break;
+            case "less":
+                flag = (trans.longValue() < req.longValue());
+                break;
+        }
+        return flag;
+    }
+    private boolean checkHelper(Double trans, Double req, TransferReq currReq) {
+        boolean flag = false;
+        switch (currReq.req) {
+            case "equal":
+                flag = (trans.doubleValue() == req.doubleValue());
+                break;
+            case "greater":
+                flag = (trans.doubleValue() > req.doubleValue());
+                break;
+            case "less":
+                flag = (trans.doubleValue() < req.doubleValue());
+                break;
+        }
+        return flag;
     }
 
     private void buildCreateOps(Node currNode, CreateOps currOp) {
@@ -245,7 +287,7 @@ public class XmlUtil {
         NodeList subNodeList = currNode.getChildNodes();
         for (int j = 0; j < subNodeList.getLength(); j++) {
             Node currSubNode = subNodeList.item(j);
-            if (currSubNode.getNodeName().equals("balance")) {
+            if (currSubNode.getNodeName().equals("account")) {
                 currOp.setActNum(Long.valueOf(currSubNode.getChildNodes().item(0).getNodeValue()));
             }
         }
@@ -309,7 +351,7 @@ public class XmlUtil {
             array.add(new TransferReq("amount", currNode.getAttributes().getNamedItem("amount").getNodeValue(), currNode.getNodeName()));
         }
         if (currNode.getAttributes().getNamedItem("info") != null) {
-            array.add(new TransferReq("tag","info",currNode.getAttributes().getNamedItem("info").getNodeValue()));
+            array.add(new TransferReq("tag", currNode.getAttributes().getNamedItem("info").getNodeValue(), "equal"));
         }
     }
 }

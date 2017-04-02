@@ -48,6 +48,7 @@ public class Bank {
                             outMsg = "This is the response";
                             xmlHandler.reset(xmlDocument, actMap, transArray);
                             xmlHandler.initOpsArray(xmlDocument, opsArray, actMap, transArray);
+                            System.out.println("checkpoint");
                             // modify actMap according to operation array
                             xmlHandler.processOps(opsArray, transArray, actMap);
                             System.out.println("checkpoint");
