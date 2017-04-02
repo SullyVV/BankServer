@@ -7,7 +7,7 @@ public class CreateOps extends OpsType {
     long actNum;
     double bal;
     public CreateOps() {
-        actNum = 0;
+        actNum = -1;
         bal = 0;
     }
 

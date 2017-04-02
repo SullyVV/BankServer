@@ -13,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -20,6 +21,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created by JohnDong on 2017/3/31.
  */
 public class XmlUtil {
+    public void reset(Document xmlDocument, ConcurrentHashMap<Long, Double> actMap, CopyOnWriteArrayList<TransferOps> transArray) {
+        // reset if needed
+        if (xmlDocument.getDocumentElement().hasAttribute("reset") && xmlDocument.getDocumentElement().getAttribute("reset").equals("true")) {
+            actMap.clear();
+            transArray.clear();
+        }
+    }
+
     class TransferReq {
         String queryType;
         String value;
@@ -51,7 +60,7 @@ public class XmlUtil {
         }
         return document;
     }
-    public boolean initOpsArray(Document xmlDocument, ArrayList<OpsType> opsArray, CopyOnWriteArrayList<TransferOps> transArray) {
+    public boolean initOpsArray(Document xmlDocument, ArrayList<OpsType> opsArray, ConcurrentHashMap<Long, Double> actMap, CopyOnWriteArrayList<TransferOps> transArray) {
         NodeList nodeList = xmlDocument.getDocumentElement().getChildNodes();
         // traverse through each operation
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -89,6 +98,113 @@ public class XmlUtil {
         return true;
     }
 
+    public void processOps(ArrayList<OpsType> opsArray, CopyOnWriteArrayList<TransferOps> transArray, ConcurrentHashMap<Long, Double> actMap) {
+        for (OpsType op : opsArray) {
+            switch (op.opsType) {
+                case "create":
+                    processCreate((CreateOps)op, actMap);
+                    break;
+                case "transfer":
+                    processTransfer((TransferOps)op, actMap);
+                    break;
+                case "balance":
+                    processBalance((BalanceOps)op, actMap);
+                    break;
+                case "query":
+                    processQuery((QueryOps)op, transArray);
+                    break;
+                default:
+                    System.out.print("This case is not possible to happen");
+            }
+        }
+    }
+
+    public void processCreate(CreateOps op, ConcurrentHashMap<Long, Double> actMap) {
+        if (actMap.containsKey(op.actNum)) {
+            // already exists
+            op.setResType("error");
+            op.setResMsg("Already exists");
+        } else {
+            // create account
+            actMap.put(op.actNum, op.getBal());
+            op.setResType("success");
+            op.setResMsg("created");
+        }
+    }
+    private void processTransfer(TransferOps op, ConcurrentHashMap<Long, Double> actMap) {
+        if (!actMap.containsKey(op.getToActNum())) {
+            op.setResType("error");
+            op.setResMsg("To account doesn't exist");
+            return;
+        }
+        if (!actMap.containsKey(op.getFromActNum())) {
+            op.setResType("error");
+            op.setResMsg("From account doesn't exist");
+            return;
+        }
+        if (actMap.get(op.getFromActNum()) < op.getAmt()) {
+            op.setResType("error");
+            op.setResMsg("Insufficient fund");
+            return;
+        }
+        actMap.put(op.getFromActNum(), actMap.get(op.getFromActNum()) - op.getAmt());
+        actMap.put(op.getToActNum(), actMap.get(op.getToActNum()) + op.getAmt());
+        op.setResType("success");
+        op.setResMsg("transferred");
+    }
+    private void processBalance(BalanceOps op, ConcurrentHashMap<Long, Double> actMap) {
+        if (actMap.containsKey(op.getActNum())) {
+            op.setResType("success");
+            op.setResMsg(Double.toString(actMap.get(op.getActNum())));
+        } else {
+            op.setResType("error");
+            op.setResMsg("Account doesn't exist");
+        }
+    }
+
+    private void processQuery(QueryOps op, CopyOnWriteArrayList<TransferOps> transArray) {
+        ArrayList<TransferOps> orResArray = new ArrayList<>();
+        ArrayList<TransferOps> notResArray = new ArrayList<>();
+        ArrayList<TransferOps> andResArray = new ArrayList<>();
+        // get orResArray first from orArray
+        for (TransferOps currTrans: transArray) {
+            for (TransferReq currReq: op.getQueryInfo().getOrArray()) {
+                if (checkReq(currReq, currTrans)) {
+                    orResArray.add(currTrans);
+                }
+            }
+        }
+        // get notResArray second from notArray
+        for (TransferOps currTrans: orResArray) {
+            boolean flag = false;
+            for (TransferReq currReq: op.getQueryInfo().getNotArray()) {
+                if (checkReq(currReq, currTrans)) {
+                    flag = true;
+                }
+            }
+            if (!flag) {
+                notResArray.add(currTrans);
+            }
+        }
+        // get finalResArray from andArray
+        for (TransferOps currTrans: notResArray) {
+            boolean flag = true;
+            for (TransferReq currReq: op.getQueryInfo().getAndArray()) {
+                if (!checkReq(currReq, currTrans)) {
+                    flag = false;
+                }
+            }
+            if (flag) {
+                andResArray.add(currTrans);
+            }
+        }
+        op.setResArray(andResArray);
+    }
+
+    private boolean checkReq(TransferReq currReq, TransferOps currTrans) {
+        // check if a transfer meets current requirement
+        return true;
+    }
 
     private void buildCreateOps(Node currNode, CreateOps currOp) {
         // traverse through detail of create operation
