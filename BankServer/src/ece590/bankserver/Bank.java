@@ -3,6 +3,7 @@ package ece590.bankserver;
 import common.*;
 import org.w3c.dom.Document;
 
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -27,6 +28,7 @@ public class Bank {
         }
         System.out.println("Bank Server Running...");
         int portNumber = Integer.valueOf(args[0]);
+        int v = 1;
         try(ServerSocket serverSocket = new ServerSocket(portNumber)) {
             while (true) {
                 try(Socket clientSocket = serverSocket.accept();
@@ -48,10 +50,13 @@ public class Bank {
                             outMsg = "This is the response";
                             xmlHandler.reset(xmlDocument, actMap, transArray);
                             xmlHandler.initOpsArray(xmlDocument, opsArray, actMap, transArray);
-                            System.out.println("checkpoint");
                             // modify actMap according to operation array
                             xmlHandler.processOps(opsArray, transArray, actMap);
-                            System.out.println("checkpoint");
+                            // reconstruct XML document
+                            Document newXmlDoc = xmlHandler.constructXml(opsArray);
+                            xmlHandler.generateXmlFile(newXmlDoc, "t" + String.valueOf(v));
+                            v++;
+                            System.out.println("Checkpoint");
                         }
                     } else {
                         // return error msg
@@ -74,5 +79,7 @@ public class Bank {
 
 
     }
+
+
 }
 

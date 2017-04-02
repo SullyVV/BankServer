@@ -1,32 +1,48 @@
 package common;
 
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 /**
  * Created by JohnDong on 2017/3/31.
  */
 public class XmlUtil {
+    private DocumentBuilderFactory builderFactory;
+    private DocumentBuilder builder;
+    public XmlUtil() {
+        builderFactory = DocumentBuilderFactory.newInstance();
+        builder = null;
+    }
     public void reset(Document xmlDocument, ConcurrentHashMap<Long, Double> actMap, CopyOnWriteArrayList<TransferOps> transArray) {
         // reset if needed
         if (xmlDocument.getDocumentElement().hasAttribute("reset") && xmlDocument.getDocumentElement().getAttribute("reset").equals("true")) {
             actMap.clear();
             transArray.clear();
         }
+    }
+
+    public void generateXmlFile(Document newXmlDoc, String s) throws TransformerException {
+        TransformerFactory tranFactory = TransformerFactory.newInstance();
+        Transformer aTransformer = tranFactory.newTransformer();
+        Source src = new DOMSource(newXmlDoc);
+        s += ".xml";
+        Result dest = new StreamResult(new File(s));
+        aTransformer.transform(src, dest);
     }
 
     class TransferReq {
@@ -39,10 +55,9 @@ public class XmlUtil {
             this.req = req;
         }
     }
+
     public Document parseXml(String txt) {
         InputSource is = new InputSource(new StringReader(txt));
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = null;
         Document document = null;
         // initialize builder
         try {
@@ -60,6 +75,7 @@ public class XmlUtil {
         }
         return document;
     }
+
     public boolean initOpsArray(Document xmlDocument, ArrayList<OpsType> opsArray, ConcurrentHashMap<Long, Double> actMap, CopyOnWriteArrayList<TransferOps> transArray) {
         NodeList nodeList = xmlDocument.getDocumentElement().getChildNodes();
         // traverse through each operation
@@ -131,6 +147,68 @@ public class XmlUtil {
             op.setResMsg("created");
         }
     }
+
+    public Document constructXml(ArrayList<OpsType> opsArray) {
+        Document doc = builder.newDocument();
+        // root element
+        Element rootElement = doc.createElement("results");
+        doc.appendChild(rootElement);
+        for (OpsType currOp : opsArray) {
+            // result element
+            String s;
+            Element currRes;
+            if (!currOp.getOpsType().equals("query")) {
+                s = currOp.getResType();
+                currRes = doc.createElement(s);
+                rootElement.appendChild(currRes);
+                // attribute
+                if (!currOp.getRef().equals("")) {
+                    Attr attr = doc.createAttribute("ref");
+                    attr.setValue(currOp.getRef());
+                    currRes.setAttributeNode(attr);
+                }
+                currRes.appendChild(doc.createTextNode(currOp.getResMsg()));
+            } else {
+                // construct query result
+                if (currOp.getResArray().size() > 0) {
+                    s = "results";
+                    currRes = doc.createElement(s);
+                    rootElement.appendChild(currRes);
+                    // attribute
+                    if (!currOp.getRef().equals("")) {
+                        Attr attr = doc.createAttribute("ref");
+                        attr.setValue(currOp.getRef());
+                        currRes.setAttributeNode(attr);
+                    }
+                    // traverse through each transfer
+                    for (TransferOps currTrans : currOp.getResArray()) {
+                        Element transfer = doc.createElement("transfer");
+                        currRes.appendChild(transfer);
+                        Element from = doc.createElement("from");
+                        from.appendChild(doc.createTextNode(String.valueOf(currTrans.getFromActNum())));
+                        transfer.appendChild(from);
+                        Element to = doc.createElement("to");
+                        to.appendChild(doc.createTextNode(String.valueOf(currTrans.getToActNum())));
+                        transfer.appendChild(to);
+                        Element amt = doc.createElement("amount");
+                        amt.appendChild(doc.createTextNode(String.valueOf(currTrans.getAmt())));
+                        transfer.appendChild(amt);
+                        if (currTrans.getTagArray().size() > 0) {
+                            Element tags = doc.createElement("tags");
+                            transfer.appendChild(tags);
+                            for (String tag : currTrans.getTagArray()) {
+                                Element currTag = doc.createElement("tag");
+                                currTag.appendChild(doc.createTextNode(tag));
+                                tags.appendChild(currTag);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return doc;
+    }
+
     private void processTransfer(TransferOps op, ConcurrentHashMap<Long, Double> actMap) {
         if (!actMap.containsKey(op.getToActNum())) {
             op.setResType("error");
@@ -152,6 +230,7 @@ public class XmlUtil {
         op.setResType("success");
         op.setResMsg("transferred");
     }
+
     private void processBalance(BalanceOps op, ConcurrentHashMap<Long, Double> actMap) {
         if (actMap.containsKey(op.getActNum())) {
             op.setResType("success");
@@ -232,6 +311,7 @@ public class XmlUtil {
         }
         return flag;
     }
+
     private boolean checkHelper(Double trans, Double req, TransferReq currReq) {
         boolean flag = false;
         switch (currReq.req) {
@@ -321,6 +401,7 @@ public class XmlUtil {
             addToArray(currNode, orArray);
         }
     }
+
     private void notHandler(ArrayList<TransferReq> notArray, Node currQueryNode) {
         NodeList nodeList = currQueryNode.getChildNodes();
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -328,6 +409,7 @@ public class XmlUtil {
             addToArray(currNode, notArray);
         }
     }
+
     private void andHandler(ArrayList<TransferReq> andArray, Node currQueryNode) {
         if (currQueryNode.getNodeName().equals("and")) {
             NodeList nodeList = currQueryNode.getChildNodes();

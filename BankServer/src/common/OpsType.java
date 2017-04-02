@@ -7,6 +7,13 @@ public class OpsType {
     String opsType;
     String resType;
     String resMsg;
+    ArrayList<TransferOps> resArray;
+    public ArrayList<TransferOps> getResArray() {
+        return resArray;
+    }
+    public void setResArray(ArrayList<TransferOps> resArray) {
+        this.resArray = resArray;
+    }
     public OpsType() {
         ref = "";
         opsType = "";

@@ -32,7 +32,7 @@ public class Client {
                     "<tag info=\"food\"/>" +
                     "</query>" + "</transaction>";*/
             String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                    "<transactions reset=\"true\">" +
+                    "<transactions reset=\"false\">" +
                     "<create ref=\"c1\">" +
                     "<account>1234</account>" +
                     "<balance>500</balance>" +
