@@ -33,7 +33,7 @@ public class Client {
                     "</query>" + "</transaction>";
 
             byte[] message = xmlRequest.getBytes();
-            dos.writeInt(message.length);
+            dos.writeLong(message.length);
             dos.write(message);
             int len = dis.readInt();
             if (len > 0) {

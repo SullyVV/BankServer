@@ -51,64 +51,91 @@ public class XmlUtil {
         }
         return document;
     }
-    public void initOpsArray(Document xmlDocument, ArrayList<OpsInfo> opsArray, CopyOnWriteArrayList<TransInfo> transArray) {
+    public boolean initOpsArray(Document xmlDocument, ArrayList<OpsType> opsArray, CopyOnWriteArrayList<TransferOps> transArray) {
         NodeList nodeList = xmlDocument.getDocumentElement().getChildNodes();
         // traverse through each operation
         for (int i = 0; i < nodeList.getLength(); i++) {
-            OpsInfo currOp = new OpsInfo();
+            String opsType = nodeList.item(i).getNodeName();
+            String opsRef = "";
             if (nodeList.item(i).getAttributes().getNamedItem("ref") != null) {
-                currOp.setRef(nodeList.item(i).getAttributes().getNamedItem("ref").getNodeValue());
+                opsRef = nodeList.item(i).getAttributes().getNamedItem("ref").getNodeValue();
             }
-            currOp.setOpsType(nodeList.item(i).getNodeName());
-            // traverse through detail of each operation
-            NodeList subNodeList = nodeList.item(i).getChildNodes();
-            // handle nodes in query and other operations separately
-            if (nodeList.item(i).getNodeName().equals("query")) {
-                queryHandler(nodeList.item(i), currOp);             // for query
-            } else {
-                // for create, transfer, balance.......
-                for (int j = 0; j < subNodeList.getLength(); j++) {
-                    Node currNode = subNodeList.item(j);
-                    if (currNode.getNodeName().equals("account")) {
-                        currOp.setActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                    }
-                    if (currNode.getNodeName().equals("amount")) {
-                        currOp.setAmt(Double.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                    }
-                    if (currNode.getNodeName().equals("balance")) {
-                        currOp.setBal(Double.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                    }
-                    if (currNode.getNodeName().equals("to")) {
-                        currOp.setToActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                    }
-                    if (currNode.getNodeName().equals("from")) {
-                        currOp.setFromActNum(Integer.valueOf(currNode.getChildNodes().item(0).getNodeValue()));
-                    }
-                    if (currNode.getNodeName().equals("tag")) {
-                        currOp.addTag(currNode.getChildNodes().item(0).getNodeValue());
-                    }
-                }
+            OpsType currOp;
+            switch (opsType) {
+                case "create":
+                    currOp = new CreateOps();
+                    buildCreateOps(nodeList.item(i), (CreateOps) currOp);
+                    break;
+                case "transfer":
+                    currOp = new TransferOps();
+                    buildTransferOps(nodeList.item(i), (TransferOps) currOp);
+                    transArray.add((TransferOps) currOp);
+                    break;
+                case "balance":
+                    currOp = new BalanceOps();
+                    buildBalanceOps(nodeList.item(i), (BalanceOps) currOp);
+                    break;
+                case "query":
+                    currOp = new QueryOps();
+                    queryHandler(nodeList.item(i), (QueryOps) currOp);
+                    break;
+                default:
+                    return false;
             }
-            if (currOp.getOpsType().equals("transfer")) {
-                transArray.add(initTrans(currOp));
-            }
+            currOp.setOpsType(opsType);
+            currOp.setRef(opsRef);
             opsArray.add(currOp);
+        }
+        return true;
+    }
 
+
+    private void buildCreateOps(Node currNode, CreateOps currOp) {
+        // traverse through detail of create operation
+        NodeList subNodeList = currNode.getChildNodes();
+        for (int j = 0; j < subNodeList.getLength(); j++) {
+            Node currSubNode = subNodeList.item(j);
+            if (currSubNode.getNodeName().equals("account")) {
+                currOp.setActNum(Long.valueOf(currSubNode.getChildNodes().item(0).getNodeValue()));
+            }
+            if (currSubNode.getNodeName().equals("balance")) {
+                currOp.setBal(Double.valueOf(currSubNode.getChildNodes().item(0).getNodeValue()));
+            }
         }
     }
 
-    private TransInfo initTrans(OpsInfo currOp) {
-        TransInfo currTrans = new TransInfo();
-        currTrans.setToActNum(currOp.getToActNum());
-        currTrans.setFromActNum(currOp.getFromActNum());
-        currTrans.setAmt(currOp.getAmt());
-        for (String tag : currOp.getTagArray()) {
-            currTrans.addTag(tag);
+    private void buildTransferOps(Node currNode, TransferOps currOp) {
+        // traverse through detail of create operation
+        NodeList subNodeList = currNode.getChildNodes();
+        for (int j = 0; j < subNodeList.getLength(); j++) {
+            Node currSubNode = subNodeList.item(j);
+            if (currSubNode.getNodeName().equals("to")) {
+                currOp.setToActNum(Long.valueOf(currSubNode.getChildNodes().item(0).getNodeValue()));
+            }
+            if (currSubNode.getNodeName().equals("from")) {
+                currOp.setFromActNum(Long.valueOf(currSubNode.getChildNodes().item(0).getNodeValue()));
+            }
+            if (currSubNode.getNodeName().equals("amount")) {
+                currOp.setAmt(Double.valueOf(currSubNode.getChildNodes().item(0).getNodeValue()));
+            }
+            if (currSubNode.getNodeName().equals("tag")) {
+                currOp.addTag(currSubNode.getChildNodes().item(0).getNodeValue());
+            }
         }
-        return currTrans;
     }
 
-    private void queryHandler(Node currNode, OpsInfo currOp) {
+    private void buildBalanceOps(Node currNode, BalanceOps currOp) {
+        // traverse through detail of create operation
+        NodeList subNodeList = currNode.getChildNodes();
+        for (int j = 0; j < subNodeList.getLength(); j++) {
+            Node currSubNode = subNodeList.item(j);
+            if (currSubNode.getNodeName().equals("balance")) {
+                currOp.setActNum(Long.valueOf(currSubNode.getChildNodes().item(0).getNodeValue()));
+            }
+        }
+    }
+
+    private void queryHandler(Node currNode, QueryOps currOp) {
         System.out.println("In Query Handler");
         NodeList nodeList = currNode.getChildNodes();
         ArrayList<TransferReq> orArray = new ArrayList<>();
