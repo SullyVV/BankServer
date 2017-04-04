@@ -1,4 +1,4 @@
-package common;
+package common.operationType;
 
 /**
  * Created by JohnDong on 2017/4/1.

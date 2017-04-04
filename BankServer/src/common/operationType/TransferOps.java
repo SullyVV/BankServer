@@ -1,4 +1,6 @@
-package common;
+package common.operationType;
+
+import common.operationType.OpsType;
 
 import java.util.ArrayList;
 
@@ -43,6 +45,11 @@ public class TransferOps extends OpsType {
     public void addTag(String tag) {
         tagArray.add(tag);
     }
+
+    public void setTagArray(ArrayList<String> tagArray) {
+        this.tagArray = tagArray;
+    }
+
     public ArrayList<String> getTagArray() {
         return tagArray;
     }

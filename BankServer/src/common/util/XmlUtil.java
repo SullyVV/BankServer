@@ -1,6 +1,8 @@
-package common;
+package common.util;
 
 
+import common.database.DatabaseManager;
+import common.operationType.*;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -11,6 +13,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,11 +31,10 @@ public class XmlUtil {
         builderFactory = DocumentBuilderFactory.newInstance();
         builder = null;
     }
-    public void reset(Document xmlDocument, ConcurrentHashMap<Long, Double> actMap, CopyOnWriteArrayList<TransferOps> transArray) {
+    public void reset(Document xmlDocument, DatabaseManager databaseManager) {
         // reset if needed
         if (xmlDocument.getDocumentElement().hasAttribute("reset") && xmlDocument.getDocumentElement().getAttribute("reset").equals("true")) {
-            actMap.clear();
-            transArray.clear();
+            databaseManager.clearDatabase();
         }
     }
 
@@ -45,7 +47,23 @@ public class XmlUtil {
         aTransformer.transform(src, dest);
     }
 
-    class TransferReq {
+    public String generateString(Document newXmlDoc) {
+        try {
+            DOMSource domSource = new DOMSource(newXmlDoc);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+            return writer.toString();
+        } catch(TransformerException ex)
+        {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public class TransferReq {
         String queryType;
         String value;
         String req;
@@ -76,7 +94,7 @@ public class XmlUtil {
         return document;
     }
 
-    public boolean initOpsArray(Document xmlDocument, ArrayList<OpsType> opsArray, ConcurrentHashMap<Long, Double> actMap, CopyOnWriteArrayList<TransferOps> transArray) {
+    public boolean initOpsArray(Document xmlDocument, ArrayList<OpsType> opsArray) {
         NodeList nodeList = xmlDocument.getDocumentElement().getChildNodes();
         // traverse through each operation
         for (int i = 0; i < nodeList.getLength(); i++) {
@@ -94,7 +112,6 @@ public class XmlUtil {
                 case "transfer":
                     currOp = new TransferOps();
                     buildTransferOps(nodeList.item(i), (TransferOps) currOp);
-                    transArray.add((TransferOps) currOp);
                     break;
                 case "balance":
                     currOp = new BalanceOps();
@@ -114,20 +131,20 @@ public class XmlUtil {
         return true;
     }
 
-    public void processOps(ArrayList<OpsType> opsArray, CopyOnWriteArrayList<TransferOps> transArray, ConcurrentHashMap<Long, Double> actMap) {
+    public void processOps(ArrayList<OpsType> opsArray, DatabaseManager databaseManager) {
         for (OpsType op : opsArray) {
-            switch (op.opsType) {
+            switch (op.getOpsType()) {
                 case "create":
-                    processCreate((CreateOps)op, actMap);
+                    processCreate((CreateOps)op, databaseManager);
                     break;
                 case "transfer":
-                    processTransfer((TransferOps)op, actMap);
+                    processTransfer((TransferOps)op, databaseManager);
                     break;
                 case "balance":
-                    processBalance((BalanceOps)op, actMap);
+                    processBalance((BalanceOps)op, databaseManager);
                     break;
                 case "query":
-                    processQuery((QueryOps)op, transArray);
+                    processQuery((QueryOps)op, databaseManager);
                     break;
                 default:
                     System.out.print("This case is not possible to happen");
@@ -135,14 +152,12 @@ public class XmlUtil {
         }
     }
 
-    public void processCreate(CreateOps op, ConcurrentHashMap<Long, Double> actMap) {
-        if (actMap.containsKey(op.actNum)) {
-            // already exists
+    public void processCreate(CreateOps op, DatabaseManager databaseManager) {
+        if (databaseManager.checkActNum(op.getActNum())) {
             op.setResType("error");
             op.setResMsg("Already exists");
         } else {
-            // create account
-            actMap.put(op.actNum, op.getBal());
+            databaseManager.createAct(op.getActNum(), op.getBal());
             op.setResType("success");
             op.setResMsg("created");
         }
@@ -209,40 +224,42 @@ public class XmlUtil {
         return doc;
     }
 
-    private void processTransfer(TransferOps op, ConcurrentHashMap<Long, Double> actMap) {
-        if (!actMap.containsKey(op.getToActNum())) {
+    private void processTransfer(TransferOps op, DatabaseManager databaseManager) {
+        if (!databaseManager.checkActNum(op.getToActNum())) {
             op.setResType("error");
             op.setResMsg("To account doesn't exist");
             return;
         }
-        if (!actMap.containsKey(op.getFromActNum())) {
+        if (!databaseManager.checkActNum(op.getFromActNum())) {
             op.setResType("error");
             op.setResMsg("From account doesn't exist");
             return;
         }
-        if (actMap.get(op.getFromActNum()) < op.getAmt()) {
+        if (databaseManager.checkBal(op.getFromActNum()) < op.getAmt()) {
             op.setResType("error");
             op.setResMsg("Insufficient fund");
             return;
         }
-        actMap.put(op.getFromActNum(), actMap.get(op.getFromActNum()) - op.getAmt());
-        actMap.put(op.getToActNum(), actMap.get(op.getToActNum()) + op.getAmt());
+        databaseManager.transfer(op.getFromActNum(), op.getToActNum(), op.getAmt());
+        databaseManager.recordTransfers(op);
         op.setResType("success");
         op.setResMsg("transferred");
+
     }
 
-    private void processBalance(BalanceOps op, ConcurrentHashMap<Long, Double> actMap) {
-        if (actMap.containsKey(op.getActNum())) {
-            op.setResType("success");
-            op.setResMsg(Double.toString(actMap.get(op.getActNum())));
-        } else {
+    private void processBalance(BalanceOps op, DatabaseManager databaseManager) {
+        if (!databaseManager.checkActNum(op.getActNum())) {
             op.setResType("error");
             op.setResMsg("Account doesn't exist");
+        } else {
+            op.setResType("success");
+            op.setResMsg(Double.toString(databaseManager.checkBal(op.getActNum())));
         }
     }
 
-    private void processQuery(QueryOps op, CopyOnWriteArrayList<TransferOps> transArray) {
+    private void processQuery(QueryOps op, DatabaseManager databaseManager) {
         ArrayList<TransferOps> resArray = new ArrayList<>();
+        ArrayList<TransferOps> transArray = databaseManager.buildTransArray();
         for (TransferOps currTrans : transArray) {
             boolean flag = false;
             // check reqs in orArray ---> requrie meet any of them
@@ -374,7 +391,6 @@ public class XmlUtil {
     }
 
     private void queryHandler(Node currNode, QueryOps currOp) {
-        System.out.println("In Query Handler");
         NodeList nodeList = currNode.getChildNodes();
         ArrayList<TransferReq> orArray = new ArrayList<>();
         ArrayList<TransferReq> andArray = new ArrayList<>();

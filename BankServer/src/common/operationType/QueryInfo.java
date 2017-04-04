@@ -1,4 +1,6 @@
-package common;
+package common.operationType;
+
+import common.util.XmlUtil;
 
 import java.util.ArrayList;
 

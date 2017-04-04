@@ -1,4 +1,4 @@
-package common;
+package common.operationType;
 
 import java.util.ArrayList;
 
