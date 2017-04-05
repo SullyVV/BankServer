@@ -1,5 +1,6 @@
 package common.database;
 
+import common.operationType.CreateOps;
 import common.operationType.TransferOps;
 
 import java.sql.*;
@@ -95,16 +96,18 @@ public class DatabaseManager {
         return flag;
     }
 
-    public void createAct(long actNum, double bal) {
+    public void createAct(CreateOps op, double bal) {
         try {
             connectDatabase();
             Statement stmt = conn.createStatement();
-            String sql = String.format("INSERT INTO ACTMAP (ACTNUM, BALANCE) VALUES (%d, %f);", actNum, bal);
+            String sql = String.format("INSERT INTO ACTMAP (ACTNUM, BALANCE) VALUES (%d, %f);", op.getActNum(), bal);
             stmt.executeUpdate(sql);
             stmt.close();
             conn.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println("In create account op: account " + op.getActNum() + " already exists");
+            op.setResType("error");
+            op.setResMsg("Already exists");
         }
     }
 

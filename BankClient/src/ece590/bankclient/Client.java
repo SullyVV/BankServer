@@ -1,24 +1,29 @@
 package ece590.bankclient;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 
-public class Client {
+/**
+ * Created by JohnDong on 2017/4/4.
+ */
+public class Client implements Runnable {
+    private int i;
+    private String hostName;
+    private int portNum;
+    public Client(int i, String hostName, int portNum) {
+        this.i = i;
+        this.hostName = hostName;
+        this.portNum = portNum;
+    }
 
-    public static void main(String[] args) throws IOException{
-        if (args.length != 2) {
-            System.err.println("Usage: java Client <host_name> <port_number>");
-            System.exit(1);
-        }
-        String hostName = args[0];
-        int portNumber = Integer.valueOf(args[1]);
-        System.out.println("Host Server is: " + hostName);
-        System.out.println("Port Number is: " + portNumber);
+    public void run() {
+        System.out.println("Client " + i + " starts...");
         try (
-                Socket clientSocket = new Socket(hostName, portNumber);
+                Socket clientSocket = new Socket(hostName, portNum);
                 DataOutputStream dos = new DataOutputStream(clientSocket.getOutputStream());
                 DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
-                ) {
+        ) {
             // test for DataOutputStream
             //String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction><create ref=\"c1\">" + "<account>3456</account>" + "<balance>5000.01</balance>" + "</create>" + "<transfer ref=\"3\"><from>1234</from><to>5678</to><amount>345.67</amount><tag>saving</tag></transfer>" + "</transaction>";
             /*String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction reset=\"false\">" +
@@ -32,7 +37,7 @@ public class Client {
                     "<tag info=\"food\"/>" +
                     "</query>" + "</transaction>";*/
             String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                    "<transactions reset=\"true\">" +
+                    "<transactions reset=\"false\">" +
                     "<create ref=\"c1\">" +
                     "<account>1234</account>" +
                     "<balance>500</balance>" +
@@ -87,9 +92,9 @@ public class Client {
                 byte[] inMsg = new byte[len];
                 dis.readFully(inMsg, 0, len);
                 String txt = new String(inMsg);
-                System.out.println("input msg is: " + txt);
+                //System.out.println("input msg is: " + txt);
             }
-            System.out.println("End of Communication");
+            System.out.println("Client " + i + " completes");
         } catch (Exception e) {
             e.printStackTrace();
         }

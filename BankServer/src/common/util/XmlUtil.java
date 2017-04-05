@@ -153,14 +153,9 @@ public class XmlUtil {
     }
 
     public void processCreate(CreateOps op, DatabaseManager databaseManager) {
-        if (databaseManager.checkActNum(op.getActNum())) {
-            op.setResType("error");
-            op.setResMsg("Already exists");
-        } else {
-            databaseManager.createAct(op.getActNum(), op.getBal());
-            op.setResType("success");
-            op.setResMsg("created");
-        }
+        op.setResType("success");
+        op.setResMsg("created");
+        databaseManager.createAct(op, op.getBal());
     }
 
     public Document constructXml(ArrayList<OpsType> opsArray) {
