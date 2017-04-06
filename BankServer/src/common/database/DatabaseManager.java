@@ -132,6 +132,7 @@ public class DatabaseManager {
             ResultSet rs = stmt.executeQuery(sql);
             flag = rs.next();
             rs.close();
+            stmt.close();
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -260,7 +261,9 @@ public class DatabaseManager {
                 currOp.setTagArray(new ArrayList<String>(Arrays.asList(tagsArray)));
                 resArray.add(currOp);
             }
-
+            rs.close();
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
