@@ -26,16 +26,34 @@ public class Client implements Runnable {
         ) {
             // test for DataOutputStream
             //String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction><create ref=\"c1\">" + "<account>3456</account>" + "<balance>5000.01</balance>" + "</create>" + "<transfer ref=\"3\"><from>1234</from><to>5678</to><amount>345.67</amount><tag>saving</tag></transfer>" + "</transaction>";
-            /*String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction reset=\"false\">" +
-                    "<create ref=\"c1\">" + "<account>1234</account>" + "<balance>5000</balance>" + "</create>" + "<transfer ref=\"3\"><from>1234</from><to>5678</to><amount>345.67</amount><tag>saving</tag></transfer>" +
-                    "<query ref=\"4\">" +
-                    "<or>" +
-                    "<equals from=\"1234\"/>" +
-                    "<equals to=\"5678\"/>" +
-                    "</or>" +
-                    "<greater amount=\"100\"/>" +
-                    "<tag info=\"food\"/>" +
-                    "</query>" + "</transaction>";*/
+            /*String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                    "<transaction reset=\"false\">" +
+                    "<create>" +
+                    "<account>1</account>" +
+                    "<balance>100000000000</balance>" +
+                    "</create>" +
+                    "<create>" +
+                    "<account>2</account>" +
+                    "<balance>100</balance>" +
+                    "</create>" +
+                    "<create>" +
+                    "<account>3</account>" +
+                    "<balance>100</balance>" +
+                    "</create>" +
+                    "<transfer>" +
+                    "<from>1</from>" +
+                    "<to>2</to>" +
+                    "<amount>10</amount>" +
+                    "</transfer>" +
+                    "<transfer>" +
+                    "<from>2</from>" +
+                    "<to>3</to>" +
+                    "<amount>10</amount>" +
+                    "</transfer>" +
+                    "<balance>" +
+                    "<account>1</account>" +
+                    "</balance>" +
+                    "</transaction>";*/
             String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                     "<transactions reset=\"false\">" +
                     "<create ref=\"c1\">" +
@@ -87,10 +105,10 @@ public class Client implements Runnable {
             byte[] message = xmlRequest.getBytes();
             dos.writeLong(message.length);
             dos.write(message);
-            int len = dis.readInt();
+            long len = dis.readLong();
             if (len > 0) {
-                byte[] inMsg = new byte[len];
-                dis.readFully(inMsg, 0, len);
+                byte[] inMsg = new byte[(int)len];
+                dis.readFully(inMsg, 0, (int)len);
                 String txt = new String(inMsg);
                 //System.out.println("input msg is: " + txt);
             }

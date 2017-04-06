@@ -47,6 +47,7 @@ public class WorkerRunnable implements Runnable {
                     xmlHandler.reset(xmlDocument, databaseManager);
                     xmlHandler.initOpsArray(xmlDocument, opsArray);       // construct operation array from XML Document
                     xmlHandler.processOps(opsArray, databaseManager);       // modify actMap according to operation array
+                    databaseManager.closeCnct();
                     Document newXmlDoc = xmlHandler.constructXml(opsArray);       // reconstruct XML document
                     xmlHandler.generateXmlFile(newXmlDoc, "xml" + String.valueOf(t));
                     outMsg = xmlHandler.generateString(newXmlDoc);
@@ -55,7 +56,7 @@ public class WorkerRunnable implements Runnable {
                 outMsg = "empty request";       // return error msg
             }
             byte[] bytes = outMsg.getBytes();
-            dos.writeInt(bytes.length);
+            dos.writeLong(bytes.length);
             dos.write(bytes);
             opsArray.clear();   // clear operation array of one transaction
             System.out.println("thread: " + Thread.currentThread() + " completes");

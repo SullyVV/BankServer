@@ -47,6 +47,7 @@ public class SingleThreadServer{
                             xmlHandler.reset(xmlDocument, databaseManager);
                             xmlHandler.initOpsArray(xmlDocument, opsArray);       // construct operation array from XML Document
                             xmlHandler.processOps(opsArray, databaseManager);       // modify actMap according to operation array
+                            databaseManager.closeCnct();
                             Document newXmlDoc = xmlHandler.constructXml(opsArray);       // reconstruct XML document
                             xmlHandler.generateXmlFile(newXmlDoc, "xml" + String.valueOf(v));
                             outMsg = xmlHandler.generateString(newXmlDoc);
@@ -56,13 +57,16 @@ public class SingleThreadServer{
                         outMsg = "empty request";       // return error msg
                     }
                     byte[] bytes = outMsg.getBytes();
-                    dos.writeInt(bytes.length);
+                    dos.writeLong(bytes.length);
                     dos.write(bytes);
                     opsArray.clear();   // clear operation array of one transaction
+                    Thread.sleep(1); // wait for last msg to be delivered successfully
                     System.out.println("End of one Conversation");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (TransformerException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

@@ -12,14 +12,15 @@ public class Bank {
             System.exit(1);
         }
         int portNumber = Integer.valueOf(args[0]);
-        // initialize database at first time, if already have data, comment the following two lines
+        // initialize database and index for transfer table at first time, if already have data, comment the following two lines
         DatabaseManager databaseManager = new DatabaseManager();
         databaseManager.initActMap();
         databaseManager.initTransfers();
+        databaseManager.buildIndex();
         /*
         Single Thread approach
          */
-//        SingleThreadServer server = new SingleThreadServer(portNumber);
+        //SingleThreadServer server = new SingleThreadServer(portNumber);
         /*
         Multi thread approach: one thread per request
          */

@@ -25,6 +25,16 @@ import javax.xml.transform.stream.StreamResult;
  * Created by JohnDong on 2017/3/31.
  */
 public class XmlUtil {
+    public class TransferReq {
+        public String queryType;
+        public String value;
+        public String req;
+        public TransferReq(String queryType, String value, String req) {
+            this.queryType = queryType;
+            this.value = value;
+            this.req = req;
+        }
+    }
     private DocumentBuilderFactory builderFactory;
     private DocumentBuilder builder;
     public XmlUtil() {
@@ -60,17 +70,6 @@ public class XmlUtil {
         {
             ex.printStackTrace();
             return null;
-        }
-    }
-
-    public class TransferReq {
-        String queryType;
-        String value;
-        String req;
-        public TransferReq(String queryType, String value, String req) {
-            this.queryType = queryType;
-            this.value = value;
-            this.req = req;
         }
     }
 
@@ -252,7 +251,7 @@ public class XmlUtil {
         }
     }
 
-    private void processQuery(QueryOps op, DatabaseManager databaseManager) {
+    private void processQuery_(QueryOps op, DatabaseManager databaseManager) {
         ArrayList<TransferOps> resArray = new ArrayList<>();
         ArrayList<TransferOps> transArray = databaseManager.buildTransArray();
         for (TransferOps currTrans : transArray) {
@@ -281,6 +280,10 @@ public class XmlUtil {
         }
         op.setResArray(new ArrayList<>(resArray));
     }
+    private void processQuery(QueryOps op, DatabaseManager databaseManager) {
+        op.setResArray(databaseManager.queryRes(op));
+    }
+
 
     private boolean checkReq(TransferReq currReq, TransferOps currTrans) {
         // check if a transfer meets current requirement
@@ -444,7 +447,7 @@ public class XmlUtil {
             array.add(new TransferReq("amount", currNode.getAttributes().getNamedItem("amount").getNodeValue(), currNode.getNodeName()));
         }
         if (currNode.getAttributes().getNamedItem("info") != null) {
-            array.add(new TransferReq("tag", currNode.getAttributes().getNamedItem("info").getNodeValue(), "equal"));
+            array.add(new TransferReq("tag", currNode.getAttributes().getNamedItem("info").getNodeValue(), "equals"));
         }
     }
 }
