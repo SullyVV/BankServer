@@ -27,7 +27,10 @@ public class SingleThreadServer{
         System.out.println("Single_thread Bank Server running....");
         int v = 1;
         Document xmlDocument;
-        try (ServerSocket serverSocket = new ServerSocket(portNum)) {
+        // default maximum queue length for incoming connections is set to 50
+        // if a connection indecation arrives when the queue is full, the connection is refused
+        int blockLogSize = 100;
+        try (ServerSocket serverSocket = new ServerSocket(portNum, blockLogSize)) {
             while (!isStopped) {
                 try (Socket clientSocket = serverSocket.accept();
                      DataInputStream dis = new DataInputStream(clientSocket.getInputStream());
