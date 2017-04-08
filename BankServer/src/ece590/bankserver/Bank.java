@@ -6,9 +6,9 @@ import common.database.DatabaseManager;
 import java.io.*;
 
 public class Bank {
-    public static void main(String[] args) throws IOException {
-        if (args.length != 1) {
-            System.err.println("Usage: java Bank <port number>");
+    public static void main(String[] args) {
+        if (args.length != 2) {
+            System.err.println("Usage: java Bank <port number> <server type (single or multi)>");
             System.exit(1);
         }
         int portNumber = Integer.valueOf(args[0]);
@@ -17,19 +17,14 @@ public class Bank {
         databaseManager.initActMap();
         databaseManager.initTransfers();
         databaseManager.buildIndex();
-        /*
-        Single Thread approach
-         */
-        //SingleThreadServer server = new SingleThreadServer(portNumber);
-        /*
-        Multi thread approach: thread pool
-         */
-        int threadNum = 10;
-        ThreadPoolServer server = new ThreadPoolServer(portNumber, threadNum);
-
-
-
-        server.runServer();
+        if (args[1].equals("single")) {
+            SingleThreadServer server = new SingleThreadServer(portNumber);
+            server.runServer();
+        } else {
+            int threadNum = 10;
+            ThreadPoolServer server = new ThreadPoolServer(portNumber, threadNum);
+            server.runServer();
+        }
     }
 }
 
