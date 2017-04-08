@@ -21,7 +21,7 @@ public class WorkerRunnable implements Runnable {
     private DatabaseManager databaseManager;
     private Document xmlDocument;
     private int t;
-    public WorkerRunnable(Socket clientSocket, int t) {
+    public WorkerRunnable(Socket clientSocket, int t)  {
         this.clientSocket = clientSocket;
         this.opsArray = new ArrayList<>();
         this.databaseManager = new DatabaseManager();
@@ -47,7 +47,7 @@ public class WorkerRunnable implements Runnable {
                     xmlHandler.reset(xmlDocument, databaseManager);
                     xmlHandler.initOpsArray(xmlDocument, opsArray);       // construct operation array from XML Document
                     xmlHandler.processOps(opsArray, databaseManager);       // modify actMap according to operation array
-                    databaseManager.closeCnct();
+                    //databaseManager.closeCnct();
                     Document newXmlDoc = xmlHandler.constructXml(opsArray);       // reconstruct XML document
                     xmlHandler.generateXmlFile(newXmlDoc, "xml" + String.valueOf(t));
                     outMsg = xmlHandler.generateString(newXmlDoc);

@@ -22,10 +22,6 @@ public class Bank {
          */
         //SingleThreadServer server = new SingleThreadServer(portNumber);
         /*
-        Multi thread approach: one thread per request
-         */
-//        MultiThreadServer server = new MultiThreadServer(portNumber);
-        /*
         Multi thread approach: thread pool
          */
         int threadNum = 10;

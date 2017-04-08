@@ -251,35 +251,6 @@ public class XmlUtil {
         }
     }
 
-    private void processQuery_(QueryOps op, DatabaseManager databaseManager) {
-        ArrayList<TransferOps> resArray = new ArrayList<>();
-        ArrayList<TransferOps> transArray = databaseManager.buildTransArray();
-        for (TransferOps currTrans : transArray) {
-            boolean flag = false;
-            // check reqs in orArray ---> requrie meet any of them
-            for (TransferReq currReq: op.getQueryInfo().getOrArray()) {
-                if (checkReq(currReq, currTrans)) {
-                    flag = true;
-                }
-            }
-            // check reqs in notArray ---> require meet none of them
-            for (TransferReq currReq: op.getQueryInfo().getNotArray()) {
-                if (checkReq(currReq, currTrans)) {
-                    flag = false;
-                }
-            }
-            // check reqs in andArray ---> require meet all of them
-            for (TransferReq currReq: op.getQueryInfo().getAndArray()) {
-                if (!checkReq(currReq, currTrans)) {
-                    flag = false;
-                }
-            }
-            if (flag) {
-                resArray.add(currTrans);
-            }
-        }
-        op.setResArray(new ArrayList<>(resArray));
-    }
     private void processQuery(QueryOps op, DatabaseManager databaseManager) {
         op.setResArray(databaseManager.queryRes(op));
     }

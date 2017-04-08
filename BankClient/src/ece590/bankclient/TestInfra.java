@@ -14,7 +14,7 @@ public class TestInfra {
         System.out.println("Host Server is: " + hostName);
         System.out.println("Port Number is: " + portNumber);
         System.out.println("Start test infrastructure...");
-        int numClient = 5;
+        int numClient = 100;
         Thread[] clientThread = new Thread[numClient];
         for (int i = 0; i < numClient; i++) {
             clientThread[i] = new Thread(new Client(i, hostName, portNumber));

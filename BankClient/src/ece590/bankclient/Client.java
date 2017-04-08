@@ -26,81 +26,90 @@ public class Client implements Runnable {
         ) {
             // test for DataOutputStream
             //String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "<transaction><create ref=\"c1\">" + "<account>3456</account>" + "<balance>5000.01</balance>" + "</create>" + "<transfer ref=\"3\"><from>1234</from><to>5678</to><amount>345.67</amount><tag>saving</tag></transfer>" + "</transaction>";
-            /*String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+            String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                     "<transaction reset=\"false\">" +
                     "<create>" +
-                    "<account>1</account>" +
-                    "<balance>100000000000</balance>" +
-                    "</create>" +
-                    "<create>" +
-                    "<account>2</account>" +
+                    "<account>1001</account>" +
                     "<balance>100</balance>" +
                     "</create>" +
                     "<create>" +
-                    "<account>3</account>" +
-                    "<balance>100</balance>" +
+                    "<account>1002</account>" +
+                    "<balance>0</balance>" +
+                    "</create>" +
+                    "<create>" +
+                    "<account>1003</account>" +
+                    "<balance>1000</balance>" +
+                    "</create>" +
+                    "<create>" +
+                    "<account>1004</account>" +
+                    "<balance>1000</balance>" +
                     "</create>" +
                     "<transfer>" +
-                    "<from>1</from>" +
-                    "<to>2</to>" +
-                    "<amount>10</amount>" +
+                    "<from>1004</from>" +
+                    "<to>1002</to>" +
+                    "<amount>5.5</amount>" +
                     "</transfer>" +
                     "<transfer>" +
-                    "<from>2</from>" +
-                    "<to>3</to>" +
-                    "<amount>10</amount>" +
+                    "<from>1003</from>" +
+                    "<to>1001</to>" +
+                    "<amount>1.1</amount>" +
+                    "</transfer>" +
+                    "<transfer>" +
+                    "<from>1001</from>" +
+                    "<to>1002</to>" +
+                    "<amount>0.5</amount>" +
                     "</transfer>" +
                     "<balance>" +
                     "<account>1</account>" +
                     "</balance>" +
-                    "</transaction>";*/
-            String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-                    "<transactions reset=\"false\">" +
-                    "<create ref=\"c1\">" +
-                    "<account>1234</account>" +
-                    "<balance>500</balance>" +
-                    "</create>" +
-                    "<create ref=\"c2\">" +
-                    "<account>5678</account>" +
-                    "</create>" +
-                    "<create ref=\"c3\">" +
-                    "<account>1000</account>" +
-                    "<balance>500000</balance>" +
-                    "</create>" +
-                    "<create ref=\"c4\">" +
-                    "<account>1001</account>" +
-                    "<balance>5000000</balance>" +
-                    "</create>" +
-                    "<transfer ref=\"1\">" +
-                    "<to>1234</to>" +
-                    "<from>1000</from>" +
-                    "<amount>9568.34</amount>" +
-                    "<tag>paycheck</tag>" +
-                    "<tag>monthly</tag>" +
-                    "</transfer>" +
-                    "<transfer ref=\"2\">" +
-                    "<from>1234</from>" +
-                    "<to>1001</to>" +
-                    "<amount>100.34</amount>" +
-                    "<tag>food</tag>" +
-                    "</transfer>" +
-                    "<transfer ref=\"3\">" +
-                    "<from>1234</from>" +
-                    "<to>5678</to>" +
-                    "<amount>345.67</amount>" +
-                    "<tag>saving</tag>" +
-                    "</transfer>" +
-                    "<balance ref=\"xyz\">" +
-                    "<account>1234</account>" +
-                    "</balance>" +
-                    "<query ref=\"4\">" +
-                    "<or>" +
-                    "<equals from=\"1234\"/>" +
-                    "<equals to=\"5678\"/>" +
-                    "</or>" +
-                    "<greater amount=\"100\"/>" +
-                    "</query>" +
-                    "</transactions>";
+                    "</transaction>";
+//            String xmlRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+//                    "<transactions reset=\"false\">" +
+//                    "<create ref=\"c1\">" +
+//                    "<account>1234</account>" +
+//                    "<balance>500</balance>" +
+//                    "</create>" +
+//                    "<create ref=\"c2\">" +
+//                    "<account>5678</account>" +
+//                    "</create>" +
+//                    "<create ref=\"c3\">" +
+//                    "<account>1000</account>" +
+//                    "<balance>500000</balance>" +
+//                    "</create>" +
+//                    "<create ref=\"c4\">" +
+//                    "<account>1001</account>" +
+//                    "<balance>5000000</balance>" +
+//                    "</create>" +
+//                    "<transfer ref=\"1\">" +
+//                    "<to>1234</to>" +
+//                    "<from>1000</from>" +
+//                    "<amount>9568.34</amount>" +
+//                    "<tag>paycheck</tag>" +
+//                    "<tag>monthly</tag>" +
+//                    "</transfer>" +
+//                    "<transfer ref=\"2\">" +
+//                    "<from>1234</from>" +
+//                    "<to>1001</to>" +
+//                    "<amount>100.34</amount>" +
+//                    "<tag>food</tag>" +
+//                    "</transfer>" +
+//                    "<transfer ref=\"3\">" +
+//                    "<from>1234</from>" +
+//                    "<to>5678</to>" +
+//                    "<amount>345.67</amount>" +
+//                    "<tag>saving</tag>" +
+//                    "</transfer>" +
+//                    "<balance ref=\"xyz\">" +
+//                    "<account>1234</account>" +
+//                    "</balance>" +
+//                    "<query ref=\"4\">" +
+//                    "<or>" +
+//                    "<equals from=\"1234\"/>" +
+//                    "<equals to=\"5678\"/>" +
+//                    "</or>" +
+//                    "<greater amount=\"100\"/>" +
+//                    "</query>" +
+//                    "</transactions>";
 
             byte[] message = xmlRequest.getBytes();
             dos.writeLong(message.length);
