@@ -1,3 +1,4 @@
+This Bank Server is developped using Java, in order to run it on your machine, you need Java installed. <br/>
 Code and Makefile for test infrastructure is in BankClient.<br/>
 To compile and run test infra for function test, execute func-test.sh <br/>
 You can modify the input xml freely by modify it in Client.java.<br/>
